@@ -1,5 +1,13 @@
-# ps code runs on local machine, it saves the graph into myM 
-
+# Based on clickPredict_v9.py 
+# remove onehot encoded features with too many or too less zeros
+# on top of v8: 
+# 1. adding dropout of input layer, 
+# 2. learning rate decay
+# 3. ploting loss, accuracy, auc for both training and testing, for comparison purpose 
+# on top of v9: 
+# plot for every 500 iterations
+# based on ps_grid_v2.py, but use different testing set
+# based on ps_grid_v3.py, but try to seperate learning and testing 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -93,6 +101,28 @@ def main():
 	# data_train, _ = fSplitTrainAndTest(X, l, l_sca, train_percentage)
 	data_train, data_test = fSplitTrainAndTest(X, l, l_sca, train_percentage)
 	
+
+	##### uncomment this if try using another testing set
+
+	# filename_test_new = 'hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/projects/predseg/xg/test_data/2017-09-20/ps.51/part-r-01088'
+	# filename_test_new = 'part-r-01088'
+	# new_data_test = sc.textFile(filename_test_new)
+	# # nbr_samples_test = new_data_test.count()
+	# nbr_samples_test = 10000
+	# data2 = new_data_test.map(lambda line:line.split('\t')).map(lambda x:x[1])
+	# labels = data2.map(lambda x: float(x[0]))
+	# feature_str = data2.map(lambda x: x[2:])
+	# t2 = feature_str.map(lambda lines: lines.split(' '))
+	# features = t2.map(lambda x: DenseVector(SparseVector(nbr_feature, {int(i.split(':')[0]):float(i.split(':')[1]) for i in x})))
+	# l_sca_test = np.array(labels.take(nbr_samples_test))
+	# l_test = np.column_stack([np.array(l_sca_test), 1-np.array(l_sca_test)])
+	# X_test = np.array(features.take(nbr_samples_test))
+	# # data_test = Data(X_test, l_test, l_sca_test) 
+
+	# data_train, data_test = fSplitTrainAndTest(X_test, l_test, l_sca_test, train_percentage)
+	# # #### 
+	
+	
 	# data_train = Data(X, l, l_sca)
 	n = len(data_train.X) # total number of training samples
 	d = len(data_train.X[0]) # number of features 
@@ -102,8 +132,8 @@ def main():
 	# print (ll)
 
 	# Create the model
-	x = tf.placeholder(tf.float32, [None, d], name = 'x')
-	keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
+	x = tf.placeholder(tf.float32, [None, d])
+	keep_prob = tf.placeholder(tf.float32)
 
 	# if False:
 	# 	y = deepnn(x, d, ll)
@@ -150,12 +180,12 @@ def main():
 		y = tf.matmul(h2_drop, W3) + b3
 
 	# Define loss and optimizer
-	y_ = tf.placeholder(tf.float32, [None, ll], name = 'y_')
-	saver = tf.train.Saver()
+	y_ = tf.placeholder(tf.float32, [None, ll])
+
 	tf.summary.histogram('W1',W1)
 	tf.summary.histogram('W2',W2)
 	cross_entropy = tf.reduce_mean(
-	  tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y), name = 'cross_entropy')
+	  tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 	starter_learning_rate = 0.05
 	global_step = tf.Variable(0, trainable=False)
 	# train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
@@ -163,15 +193,14 @@ def main():
 	# train_step = tf.train.GradientDescentOptimizer(learning_rate = learning_rate).minimize(cross_entropy, global_step = global_step)
 	
 	train_step = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cross_entropy, global_step = global_step)
-	# with tf.Session() as sess:
 	sess = tf.InteractiveSession()
-	# saver.save(sess, './myM')
 	tf.global_variables_initializer().run()
-	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1), name = 'correct_prediction')
-	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'acc')	
-	auc_ftrain = tf.metrics.auc(tf.cast(tf.argmax(y, 1), tf.float32), tf.cast(tf.argmax(y_, 1), tf.float32), name = 'auc_ftrain')
-	auc_ftest = tf.metrics.auc(tf.cast(tf.argmax(y, 1), tf.float32), tf.cast(tf.argmax(y_, 1), tf.float32), name = 'auc_ftest')
-	softmaxed_logits = tf.nn.softmax(y, name = 'softmaxed_logits')
+
+	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))	
+	auc_ftrain = tf.metrics.auc(tf.cast(tf.argmax(y, 1), tf.float32), tf.cast(tf.argmax(y_, 1), tf.float32))
+	auc_ftest = tf.metrics.auc(tf.cast(tf.argmax(y, 1), tf.float32), tf.cast(tf.argmax(y_, 1), tf.float32))
+	softmaxed_logits = tf.nn.softmax(y)
 
 
 
@@ -200,7 +229,7 @@ def main():
 
 	batch_size = 40
 	
-	for i in range(20):
+	for i in range(200):
 		
 		# train the whole epoch (first shuffle the data)
 		idx = np.arange(0, n)
@@ -228,7 +257,6 @@ def main():
 			# print (data_train.labels)
 			sk_auc_train = metrics.roc_auc_score(y_true = np.array(data_train.labels), y_score = np.array(soft_logits_train))
 			sk_auc_test = metrics.roc_auc_score(y_true = np.array(data_test.labels), y_score = np.array(soft_logits_test))													
-			
 			print ('learning rate: ' + str(sess.run(learning_rate)))
 
 			print ('train cross entropy: ' + str(ca_train_i))
@@ -243,8 +271,13 @@ def main():
 
 			print('train sk auc: ' + str(sk_auc_train))
 			print('test sk auc: ' + str(sk_auc_test))
+			# print ('train auc sk' + str(auc_sk_train))
+			# print ('test auc sk' + str(auc_sk_test))
 
-		saver.save(sess, './myM')
+		# ca_test, ac_test, auc_test = sess.run([cross_entropy, accuracy, auc], feed_dict={x: data_test.X, y_: data_test.labels, keep_prob: 1.0})
+		# print ('test cross entropy: ' + str(ca_test))
+		# print ('test accuracy: ' + str(ac_test))
+		# print ('test auc: '+ str(auc_test[0]))
 	sess.close()
 	sc.stop()
 

@@ -60,7 +60,7 @@ def main():
 	# filename = 'ps_train.svm'
 	# sc = SparkContext("local", "Simple App")
 	# filename = 'hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/projects/predseg/models/2017-09-29/ps.51/training_set'
-	filename = 'ps_oct/training_set'
+	filename = '../ps_data/ps_oct/training_set'
 	# sc = SparkContext(conf=SparkConf().setAppName("ps_spark_grid")
 	# conf = (SparkConf().set('spark.yarn.executor.memoryOverhead', '4096').set('spark.kryoserializer.buffer.max.mb', '2047').set('spark.driver.maxResultSize','2g'))
 	conf = (SparkConf().setMaster('local[*]').set('spark.executor.memory', '4G').set('spark.driver.memory', '45G').set('spark.driver.maxResultSize', '10G'))
