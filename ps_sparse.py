@@ -183,6 +183,7 @@ def main():
 
 	# filename_test_new = 'hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/projects/predseg/xg/test_data/2017-09-20/ps.51/part-r-01088'
 	filename = '../ps_data/part-r-01088'
+	filename = '../ps_data/ps_oct/training_set'
 	nbr_features = 1000
 	new_data_test = sc.textFile(filename)
 	data = fReadData(new_data_test, nbr_features) # data is a tuple where data[0] is the features, and data[1] is the labels
@@ -199,7 +200,7 @@ def main():
 
 
 	nbr_of_layers = 2
-	nbr_layer1 = 50
+	nbr_layer1 = 250
 	nbr_layer2 = 50
 	epsilon = 1e-3
 
@@ -286,7 +287,7 @@ def main():
 	ca_test = np.array([])
 	auc_test = np.array([])
 
-	batch_size = 60
+	batch_size = 100
 	data_test_input_features = csr_2_input(data_test[0]) # transform csr to input form that is a tuple of (index, value, shape)
 	data_train_input_features = csr_2_input(data_train[0])
 	for i in range(100):
