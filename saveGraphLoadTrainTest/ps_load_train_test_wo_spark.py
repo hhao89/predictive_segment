@@ -75,9 +75,9 @@ def main():
 	keep_prob = graph.get_tensor_by_name('keep_prob:0')
 	train_step = graph.get_tensor_by_name('train_step:0')
 
-	batch_size = 40
+	batch_size = 100
 	
-	for i in range(10):
+	for i in range(100):
 		
 		# train the whole epoch (first shuffle the data)
 		idx = np.arange(0, n)

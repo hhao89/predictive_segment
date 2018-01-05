@@ -165,7 +165,7 @@ def main():
 	conf = (SparkConf().setMaster('local[*]').set('spark.executor.memory', '4G').set('spark.driver.memory', '45G').set('spark.driver.maxResultSize', '10G'))
 	sc = SparkContext(conf=conf)
 	if False:
-		filename = '../ps_data/ps_oct/training_set'
+		filename = '../../ps_data/ps_oct/training_set'
 		# sc = SparkContext(conf=SparkConf().setAppName("ps_spark_grid")
 		# conf = (SparkConf().set('spark.yarn.executor.memoryOverhead', '4096').set('spark.kryoserializer.buffer.max.mb', '2047').set('spark.driver.maxResultSize','2g'))
 		data = sc.textFile(filename)
@@ -192,7 +192,7 @@ def main():
 	##### uncomment this if try using another testing set
 
 	# filename_test_new = 'hdfs://jetblue-nn1.blue.ygrid.yahoo.com:8020/projects/predseg/xg/test_data/2017-09-20/ps.51/part-r-01088'
-	filename = '../ps_data/part-r-01088'
+	filename = '../../ps_data/part-r-01088'
 	# filename = '../ps_data/ps_oct/training_set'
 	nbr_features = 600
 	new_data_test = sc.textFile(filename)
