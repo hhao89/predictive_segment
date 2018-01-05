@@ -1,2 +1,3 @@
-ps_dense.py has much better and sensible performance compared with ps_sparse.py. The two graphs take the sample libsvm file as input data.
+ps_dense.py has much better and sensible performance compared with ps_sparse.py. But ps_sparse.py runs much faster, since in ps_dense.py, the spase vectors need to be converted to dense vectors
+The two graphs take the sample libsvm file as input data.
 Haven't figured out that caused the difference yet.
