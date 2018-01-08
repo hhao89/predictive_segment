@@ -72,8 +72,9 @@ def main():
 	sess = tf.InteractiveSession()
 
 	# load the graph and variables
-	saver = tf.train.import_meta_graph('myM.meta')
-	saver.restore(sess, tf.train.latest_checkpoint('./'))
+	saver = tf.train.import_meta_graph('mytest/myM.meta')
+	# saver.restore(sess, tf.train.latest_checkpoint('./'))
+	sess.run(tf.global_variables_initializer())
 	graph = tf.get_default_graph()
 	acc = graph.get_tensor_by_name('acc:0')
 	softmaxed_logits = graph.get_tensor_by_name('softmaxed_logits:0')
