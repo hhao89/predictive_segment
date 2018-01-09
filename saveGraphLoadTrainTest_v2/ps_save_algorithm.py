@@ -25,10 +25,18 @@ def bias_variable(shape):
 
 def main():
 	st_time = time.time()
-	d = 554 # nbr of features
+
+	nbr_features = tf.get_variable('nbr_features', dtype = tf.int32, initializer = tf.constant(554))  # nbr of features
+	# nbr_features = tf.placeholder(tf.int32, name = 'nbr_features')
+	# d = tf.reduce_mean(nbr_features, name = 'd')
+	# d = 80
 	ll = 2 # dimension of output
 
 	# Create the model
+	sess = tf.InteractiveSession()
+	sess.run(tf.global_variables_initializer())
+	d = sess.run(nbr_features)
+	# d = sess.run(d, feed_dict={nbr_features: 600})
 	x = tf.placeholder(tf.float32, [None, d], name = 'x')
 	keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
 	nbr_of_layers = 3
@@ -79,7 +87,7 @@ def main():
 	softmaxed_logits = tf.nn.softmax(y, name = 'softmaxed_logits')
 
 	# start session and save model
-	sess = tf.InteractiveSession()
+	# sess = tf.InteractiveSession()
 	sess.run(tf.global_variables_initializer())
 	saver = tf.train.Saver()
 	saver.save(sess, './myM')
