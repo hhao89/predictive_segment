@@ -1,0 +1,3 @@
+Modified based on saveGraphLoadTrainTest_v2
+1. define number of features nbr_features in ps_save.py as a variable 
+2. In ps_load_train_test.py, load the variable nbr_features 
