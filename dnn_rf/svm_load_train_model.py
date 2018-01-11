@@ -47,11 +47,13 @@ def main():
 	sess = tf.Session()
 
 	# load the graph and variables
-	saver = tf.train.import_meta_graph('rf/rf_graph.meta')
-	# saver = tf.train.import_meta_graph('dnn/dnn_graph.meta')
+	# saver = tf.train.import_meta_graph('rf/rf_graph.meta')
+	saver = tf.train.import_meta_graph('dnn/dnn_graph.meta')
 	sess.run(tf.global_variables_initializer())
 	graph = tf.get_default_graph()
-	acc = graph.get_tensor_by_name('acc:0')
+	accuracy = graph.get_tensor_by_name('accuracy:0')
+	nbr_features_graph = graph.get_tensor_by_name('nbr_features:0')
+	# print sess.run(nbr_features_graph)
 	#softmaxed_logits = graph.get_tensor_by_name('softmaxed_logits:0')
 	x = graph.get_tensor_by_name('x:0')
 	y_ = graph.get_tensor_by_name('y_:0')
@@ -79,7 +81,7 @@ def main():
 	
 	save_path = saver.save(sess, "dnn/dnn_model.ckpt")		
 	# calculate acc using test data
-	#acc_test, soft_logits_test = sess.run([acc, softmaxed_logits], feed_dict={x: testing_data[0].todense(), y_: testing_data[1], keep_prob: 1.0})
+	#acc_test, soft_logits_test = sess.run([accuracy, softmaxed_logits], feed_dict={x: testing_data[0].todense(), y_: testing_data[1], keep_prob: 1.0})
 	#sk_auc_test = metrics.roc_auc_score(y_true = np.array(data_test.labels), y_score = np.array(soft_logits_test))
 	
 	#print ('test accuracy: ' + str(acc_test))

@@ -17,6 +17,7 @@ def main():
 	ll = 1 # dimension of output
          
 	# Create the model
+	nbr_features = tf.constant(d,dtype = tf.int32, name = 'nbr_features')
 	x = tf.placeholder(tf.float32, [None, d], name = 'x')
 	y = tf.placeholder(tf.int32, shape=[None],name ='y_')
 	keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')

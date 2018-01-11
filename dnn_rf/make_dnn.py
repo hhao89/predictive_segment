@@ -20,10 +20,12 @@ def bias_variable(shape):
 
 
 def main():
+
 	d = 574 # nbr of features
 	ll = 1 # dimension of output
 
 	# Create the model
+	nbr_features = tf.constant(d,dtype = tf.int32, name = 'nbr_features')
 	x = tf.placeholder(tf.float32, [None, d], name = 'x')
 	keep_prob = tf.placeholder(tf.float32, name = 'keep_prob')
 	nbr_of_layers = 3
@@ -69,7 +71,7 @@ def main():
 	learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step , decay_steps = 5000, decay_rate = 0.95, staircase=True, name=None)	
 	train_step = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cross_entropy, global_step = global_step, name = 'loss_optimizer')
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1), name = 'correct_prediction')
-	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'acc')	
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'accuracy')	
 	softmaxed_logits = tf.nn.softmax(y, name = 'softmaxed_logits')
 
 	# start session and save model
