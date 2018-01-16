@@ -72,6 +72,9 @@ def main():
 	
 	batch_size = 40
 	
+	if y_.get_shape().as_list()[1] == 2:
+		yr = np.column_stack([yr, 1-yr])
+	
 	for i in range(30):
 		
 		# train the whole epoch (first shuffle the data)
