@@ -44,7 +44,7 @@ def main():
 	# Measure the accuracy
 	infer_op, _, _ = forest_graph.inference_graph(x)
 	correct_prediction = tf.equal(tf.argmax(infer_op, 1), tf.cast(y, tf.int64),name = 'correct_prediction')
-	accuracy_op = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'acc')
+	accuracy_op = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'accuracy')
 	
 
 	# Initialize the variables (i.e. assign their default value) and forest resources

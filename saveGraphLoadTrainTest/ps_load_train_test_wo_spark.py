@@ -66,7 +66,8 @@ def main():
 
 	# load the graph and variables
 	saver = tf.train.import_meta_graph('myM.meta')
-	saver.restore(sess, tf.train.latest_checkpoint('./'))
+	# saver.restore(sess, tf.train.latest_checkpoint('./'))
+	sess.run(tf.global_variables_initializer())
 	graph = tf.get_default_graph()
 	acc = graph.get_tensor_by_name('acc:0')
 	softmaxed_logits = graph.get_tensor_by_name('softmaxed_logits:0')
@@ -74,25 +75,30 @@ def main():
 	y_ = graph.get_tensor_by_name('y_:0')
 	keep_prob = graph.get_tensor_by_name('keep_prob:0')
 	train_step = graph.get_tensor_by_name('train_step:0')
+	cross_entropy = graph.get_tensor_by_name('cross_entropy:0')
 
 	batch_size = 100
 	
-	for i in range(100):
+	for i in range(30):
 		
 		# train the whole epoch (first shuffle the data)
-		idx = np.arange(0, n)
-		np.random.shuffle(idx)
-		X_shuffle = [data_train.X[k] for k in idx]
-		labels_shuffle = [data_train.labels[k] for k in idx]
-
+		# idx = np.arange(0, n)
+		# np.random.shuffle(idx)
+		# X_shuffle = [data_train.X[k] for k in idx]
+		# labels_shuffle = [data_train.labels[k] for k in idx]
+		X_shuffle = data_train.X
+		labels_shuffle = data_train.labels
 		for j in range(int(n/batch_size)):
 			batch_xs = X_shuffle[j*batch_size: (j+1)*batch_size-1]
 			batch_ys = labels_shuffle[j*batch_size: (j+1)*batch_size-1]	
 			sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, keep_prob: 0.5})
 
 		# finish training, try on testing data
-		if i % 10 is 0:     
+		if i % 5 is 0:      
 			print ('epoch: ' + str(i))
+			ac, ce = sess.run([acc,cross_entropy], feed_dict={x: X_shuffle, y_: labels_shuffle, keep_prob: 1.0})
+			print (ac)
+			print (ce)
 			
 	# calculate acc using test data
 	acc_test, soft_logits_test = sess.run([acc, softmaxed_logits], feed_dict={x: data_test.X, y_: data_test.labels, keep_prob: 1.0})

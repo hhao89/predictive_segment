@@ -74,9 +74,9 @@ def main():
 	starter_learning_rate = 0.05
 	global_step = tf.Variable(0, trainable=False)
 	learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step , decay_steps = 5000, decay_rate = 0.95, staircase=True, name=None)	
-	train_step = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cross_entropy, global_step = global_step, name = 'train_step')
+	train_step = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cross_entropy, global_step = global_step, name = 'loss_optimizer')
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1), name = 'correct_prediction')
-	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'acc')	
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name = 'accuracy')	
 	softmaxed_logits = tf.nn.softmax(y, name = 'softmaxed_logits')
 
 	# start session and save model

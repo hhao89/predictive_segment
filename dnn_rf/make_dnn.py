@@ -22,7 +22,7 @@ def bias_variable(shape):
 def main():
 
 	d = 574 # nbr of features
-	ll = 1 # dimension of output
+	ll = 2 # dimension of output
 
 	# Create the model
 	nbr_features = tf.constant(d,dtype = tf.int32, name = 'nbr_features')
@@ -65,6 +65,7 @@ def main():
 
 	# Define loss and optimizer
 	y_ = tf.placeholder(tf.float32, [None, ll], name = 'y_')
+	print (y_)
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y), name = 'cross_entropy')
 	starter_learning_rate = 0.05
 	global_step = tf.Variable(0, trainable=False)
@@ -76,7 +77,12 @@ def main():
 
 	# start session and save model
 	sess = tf.Session()
+	# tf.initialize_all_variables()
 	sess.run(tf.global_variables_initializer())
+	# tf.train.write_graph(sess.graph_def,'.','dnn_only.graph',as_text=False)
+	# tf.train.write_graph(sess.graph_def,'.','dnn_only.pbtxt')
+	tf.train.write_graph(sess.graph_def,'.','dnn_only.pb',as_text=False)
+
 	saver = tf.train.Saver()
 	saver.save(sess, './dnn_graph')
 	sess.close()
