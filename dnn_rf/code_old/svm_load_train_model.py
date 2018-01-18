@@ -13,7 +13,7 @@ import os
 import matplotlib.pyplot as plt
 import sklearn.metrics as metrics
 import time
-from tensorflow.python.platform import gfile
+
 from sklearn.datasets import load_svmlight_file
 from sklearn import preprocessing
 
@@ -41,39 +41,29 @@ def main():
 	Xr = training_data[0].todense()
 	lb = preprocessing.LabelBinarizer()
 	yr = lb.fit_transform(training_data[1])
+	yr = np.column_stack([yr, 1-yr])
 	testing_data = training_data # load_svmlight_file("./testing.svm") 
 	n = training_data[0].shape[0]
 
 	sess = tf.Session()
-	
+
 	# load the graph and variables
 	# saver = tf.train.import_meta_graph('rf/rf_graph.meta')
 	# saver = tf.train.import_meta_graph('dnn/dnn_graph.meta')
-	# saver = tf.train.import_meta_graph('dnn_only.graph')
-	with gfile.FastGFile('dnn_only.graph','rb') as f:
-		sess.run(tf.global_variables_initializer())
-		graph_def = tf.GraphDef()
-		graph_def.ParseFromString(f.read())
-		sess.run(tf.global_variables_initializer())
-		sess.graph.as_default()
-		sess.run(tf.global_variables_initializer())	
-		tf.import_graph_def(graph_def, name='')
 	
-	sess.run(tf.global_variables_initializer())	
-	graph = tf.get_default_graph()
-	# graph = tf.get_default_graph()
-	accuracy = sess.graph.get_tensor_by_name('accuracy:0')
-	nbr_features_graph = sess.graph.get_tensor_by_name('nbr_features:0')
-	x = sess.graph.get_tensor_by_name('x:0')
-	y_ = sess.graph.get_tensor_by_name('y_:0')
-	keep_prob = sess.graph.get_tensor_by_name('keep_prob:0')
-	train_step = sess.graph.get_tensor_by_name('loss_optimizer:0')
+	saver = tf.train.import_meta_graph('dnn/dnn_graph.meta')
 	sess.run(tf.global_variables_initializer())
-	
+	graph = tf.get_default_graph()
+	accuracy = graph.get_tensor_by_name('accuracy:0')
+	nbr_features_graph = graph.get_tensor_by_name('nbr_features:0')
+	# print sess.run(nbr_features_graph)
+	#softmaxed_logits = graph.get_tensor_by_name('softmaxed_logits:0')
+	x = graph.get_tensor_by_name('x:0')
+	y_ = graph.get_tensor_by_name('y_:0')
+	keep_prob = graph.get_tensor_by_name('keep_prob:0')
+	train_step = graph.get_tensor_by_name('loss_optimizer:0')
+
 	batch_size = 40
-	
-	if y_.get_shape().as_list()[1] == 2:
-		yr = np.column_stack([yr, 1-yr])
 	
 	for i in range(30):
 		
