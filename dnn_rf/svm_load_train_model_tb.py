@@ -38,6 +38,11 @@ keep_prob      = sess.graph.get_tensor_by_name('keep_prob:0')
 loss_optimizer = sess.graph.get_tensor_by_name('loss_optimizer:0')
 init_op        = sess.graph.get_operation_by_name('init')
 
+# tensorboard
+tf.summary.scalar('accuracy', accuracy)
+merged = tf.summary.merge_all()
+train_writer = tf.summary.FileWriter('./TFlogs', sess.graph)
+
 sess.run(init_op)
 
 # first get the limits 
@@ -58,6 +63,11 @@ for i in range(100):
 		batch_xs = Xr[j*batch_size: (j+1)*batch_size-1]
 		batch_ys = yr[j*batch_size: (j+1)*batch_size-1]	
 		sess.run(loss_optimizer, feed_dict={input_features: batch_xs, input_labels: batch_ys, keep_prob: 0.5})
+
+	if i % 2 is 0:     
+		print ('epoch: ' + str(i))
+		summary,acc = sess.run([merged, accuracy], feed_dict={input_features: Xr, input_labels: yr, keep_prob: 1.0})
+		train_writer.add_summary(summary,i)
 
 sess.close()
 
