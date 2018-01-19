@@ -23,6 +23,8 @@ from tensorflow.python.ops import resources
 start_time = time.time()
 graph_pb = 'dnn_only.pb'
 graph_def = tf.GraphDef()
+export_dir = "dnn_2/model"
+builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
 
 with open(graph_pb, 'rb') as f:
 	graph_def.ParseFromString(f.read())
@@ -57,7 +59,7 @@ yr = lb.fit_transform(training_data[1])
 if input_labels.get_shape().as_list()[1] == 2:
 	yr = np.column_stack([yr, 1-yr])
 
-for i in range(100):
+for i in range(10):
 
 	for j in range(int(n/batch_size)):
 		batch_xs = Xr[j*batch_size: (j+1)*batch_size-1]
@@ -68,7 +70,7 @@ for i in range(100):
 		print ('epoch: ' + str(i))
 		summary,acc = sess.run([merged, accuracy], feed_dict={input_features: Xr, input_labels: yr, keep_prob: 1.0})
 		train_writer.add_summary(summary,i)
-
+builder.save()
 sess.close()
 
 end_time = time.time()
