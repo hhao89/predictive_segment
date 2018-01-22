@@ -21,35 +21,43 @@ from tensorflow.contrib.tensor_forest.python import *
 from tensorflow.python.ops import resources
 
 start_time = time.time()
-graph_pb = 'dnn_only.pb'
+# graph_pb = 'dnn_only.pb'
 
-graph_def = tf.GraphDef()
+# graph_def = tf.GraphDef()
 export_dir = "dnn_2/model"
+# export_dir =  './savedmodel'
 # builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
 
-
-with open(graph_pb, 'rb') as f:
-	graph_def.ParseFromString(f.read())
-tf.import_graph_def(graph_def, name='')
+# with open(graph_pb, 'rb') as f:
+# 	graph_def.ParseFromString(f.read())
+# tf.import_graph_def(graph_def, name='')
 
 sess = tf.InteractiveSession()
+# tf.saved_model.loader.load(sess,['tag'],export_dir)
+# graph = tf.get_default_graph()
+graph = tf.saved_model.loader.load(sess, ['tag'],export_dir)
 
 
+# x = sess.graph.get_tensor_by_name('x:0')
+# y = sess.graph.get_tensor_by_name('y:0')
+
+# y_out = sess.run(y, {x: 3.0})
+# print y_out
 accuracy       = sess.graph.get_tensor_by_name('accuracy:0')
 nbr_features   = sess.graph.get_tensor_by_name('nbr_features:0')
 input_features = sess.graph.get_tensor_by_name('x:0')
 input_labels   = sess.graph.get_tensor_by_name('y_:0')
 keep_prob      = sess.graph.get_tensor_by_name('keep_prob:0')
-loss_optimizer = sess.graph.get_tensor_by_name('loss_optimizer:0')
+# loss_optimizer = sess.graph.get_tensor_by_name('loss_optimizer:0')
+# init_op        = sess.graph.get_operation_by_name('init')
 correct_prediction = sess.graph.get_tensor_by_name('correct_prediction:0')
-init_op        = sess.graph.get_operation_by_name('init')
 
-# tensorboard
-tf.summary.scalar('accuracy', accuracy)
-merged = tf.summary.merge_all()
-train_writer = tf.summary.FileWriter('./TFlogs', sess.graph)
-
-sess.run(init_op)
+# # # tensorboard
+# # tf.summary.scalar('accuracy', accuracy)
+# # merged = tf.summary.merge_all()
+# # train_writer = tf.summary.FileWriter('./TFlogs', sess.graph)
+# # sess.run(tf.global_variables_initializer())
+# # sess.run(init_op)
 
 # first get the limits 
 col_size = sess.run(nbr_features)
@@ -63,26 +71,9 @@ yr = lb.fit_transform(training_data[1])
 if input_labels.get_shape().as_list()[1] == 2:
 	yr = np.column_stack([yr, 1-yr])
 
-for v in tf.get_default_graph().as_graph_def().node:
-	print (v.name)
+acc = sess.run(accuracy, feed_dict={input_features: Xr, input_labels: yr, keep_prob: 1.0})
+print acc
 
-
-for i in range(2):
-
-	for j in range(int(n/batch_size)):
-		batch_xs = Xr[j*batch_size: (j+1)*batch_size-1]
-		batch_ys = yr[j*batch_size: (j+1)*batch_size-1]	
-		sess.run(loss_optimizer, feed_dict={input_features: batch_xs, input_labels: batch_ys, keep_prob: 0.5})
-
-	if i % 2 is 0:     
-		print ('epoch: ' + str(i))
-		summary,acc = sess.run([merged, accuracy], feed_dict={input_features: Xr, input_labels: yr, keep_prob: 1.0})
-		train_writer.add_summary(summary,i)
-		print (acc)
-
-builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
-builder.add_meta_graph_and_variables(sess, ['tag'])
-builder.save()
 sess.close()
 
 end_time = time.time()

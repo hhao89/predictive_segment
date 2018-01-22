@@ -21,18 +21,19 @@ from tensorflow.contrib.tensor_forest.python import *
 from tensorflow.python.ops import resources
 
 start_time = time.time()
-graph_pb = 'dnn_only.pb'
+graph_pb = 'dnn_graph/model'
 
 graph_def = tf.GraphDef()
-export_dir = "dnn_2/model"
+export_dir = "dnn_trained/model"
 # builder = tf.saved_model.builder.SavedModelBuilder(export_dir)
 
 
-with open(graph_pb, 'rb') as f:
-	graph_def.ParseFromString(f.read())
-tf.import_graph_def(graph_def, name='')
+# with open(graph_pb, 'rb') as f:
+# 	graph_def.ParseFromString(f.read())
+# tf.import_graph_def(graph_def, name='')
 
 sess = tf.InteractiveSession()
+graph = tf.saved_model.loader.load(sess, ['tag'],graph_pb)
 
 
 accuracy       = sess.graph.get_tensor_by_name('accuracy:0')
@@ -54,7 +55,7 @@ sess.run(init_op)
 # first get the limits 
 col_size = sess.run(nbr_features)
 batch_size = 40
-training_data = load_svmlight_file("../../ps_data/train-0.svm")
+training_data = load_svmlight_file("../../../ps_data/train-0.svm")
 Xr = training_data[0].todense()[:,0:col_size]
 n = training_data[0].shape[0]
 yr = training_data[1]
