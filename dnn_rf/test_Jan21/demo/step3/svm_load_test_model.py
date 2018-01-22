@@ -74,8 +74,7 @@ if input_labels.get_shape().as_list()[1] == 2:
 
 acc, logits = sess.run([accuracy, softmaxed_logits], feed_dict={input_features: Xr, input_labels: yr, keep_prob: 1.0})
 sk_auc_test = metrics.roc_auc_score(y_true = np.array(yr), y_score = np.array(logits))
-# print acc
-print 'AUC of testing data: '
+print acc
 print sk_auc_test
 
 sess.close()
