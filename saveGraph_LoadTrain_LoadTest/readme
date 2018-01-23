@@ -1,0 +1,9 @@
+Step 1. Build and save graph 
+        python make_dnn.py (dnn graph) or python make_rf.py (random forest graph)
+        A dnn_graph folder is generated after running the code above, which contains all information of the graph we built
+Step 2. load the graph that is saved in dnn_graph and train it 
+        python svm_load_train_model_tb.py
+        A dnn_trained folder is generated after running the code above, which contains all information of the trained model
+Step 3. Load the model that is saved in dnn_trained anad test it
+        python svm_load_test_model.py
+
